@@ -1,0 +1,43 @@
+﻿services:
+  valetax:
+    image: valetax
+    build:
+      context: .
+      dockerfile: Valetax.Host/Dockerfile
+    restart: unless-stopped
+    depends_on:
+      - postgres
+    environment:
+      - ConnectionStrings__DefaultConnection=User ID =postgres;Password=admin;Server=postgres;Port=5432;Database=valetax; Integrated Security=true;Pooling=true;
+      - ASPNETCORE_URLS=http://+:80
+    expose:
+      - "5046"
+    ports:
+      - "5046:80"
+    networks:
+      - dev
+
+  postgres:
+    command: postgres -c shared_preload_libraries=pg_stat_statements -c pg_stat_statements.track=all -N 1000
+    environment:
+      - POSTGRES_DB=valetax
+      - POSTGRES_PASSWORD=admin
+    expose:
+      - "5432"
+    image: postgres:latest
+    restart: always
+    ports:
+      - "5432:5432"
+    volumes:
+      - valetax:/var/lib/postgresql/data
+    networks:
+      - dev
+
+networks:
+  dev:
+    driver: bridge
+
+volumes:
+  valetax:
+
+    
